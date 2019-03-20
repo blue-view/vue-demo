@@ -1,5 +1,6 @@
 const path = require('path');
 module.exports = {
+  baseUrl: process.env.NODE_ENV === 'production' ? '/dist/' : '/',
   css: {
     loaderOptions: {
       stylus: {
