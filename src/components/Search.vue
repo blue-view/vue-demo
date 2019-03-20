@@ -68,10 +68,18 @@
 
 <script>
 import axios from "axios";
-import vue from "vue";
+// import vue from "vue";
 
 export default {
   name: "search",
+  computed:{
+    ulHeight() {
+      return {
+        height: `${(this.songs["temArr"].length * 55) / 32}rem`,
+        marginBottom: `${130 / 32}rem`
+      };
+    }
+  },
   data: function() {
     return {
       keyWord: "",
@@ -200,10 +208,12 @@ export default {
         ).then(function(res) {
           if (res.data.code == 200) {
             var itemObj = res.data.result.songs;
-            var temObj = {};
+            var temObj = {
+              songCount: 0,
+              temArr: []
+            };
             var temArr = [];
             temObj["songCount"] = res.data.result.songCount;
-            temObj["playList"] = [];
             for (var t in itemObj) {
               var obj = itemObj[t];
               var songMp3Url = baseUrl + that.$apiUrl.SongMp3Url + obj.id;
@@ -218,8 +228,7 @@ export default {
                 keyWord: obj.name,
                 title: obj.album && obj.album.name,
                 pic: obj.artists[0] && obj.artists[0].img1v1Url,
-                // lrc: songLyric.data.lrc && songLyric.data.lrc.lyric,
-                // src: songMp3Url.data.data[0].url
+
                 lrc: "",
                 src: ""
               });
@@ -356,6 +365,7 @@ export default {
 
 .page-loadmore-wrapper {
   overflow: scroll;
+  margin-bottom: px2em(130);
 }
 
 .mint-loadmore-bottom span {

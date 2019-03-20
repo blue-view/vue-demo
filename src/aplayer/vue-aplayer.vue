@@ -38,7 +38,7 @@
           :theme="currentTheme"
           @toggleplay="toggle"
           @toggleshuffle="shouldShuffle = !shouldShuffle"
-          @togglelist="showList = !showList"
+          @togglelist="toggleList"
           @togglemute="toggleMute"
           @setvolume="setAudioVolume"
           @dragbegin="onProgressDragBegin"
@@ -50,7 +50,7 @@
     </div>
     <audio ref="audio"></audio>
     <music-list
-      :show="showList && !mini"
+      :show="this.$store.state.playPrama.mask && !mini"
       :current-music="currentMusic"
       :music-list="musicList"
       :play-index="playIndex"
@@ -100,7 +100,7 @@ const VueAPlayer = {
   },
   props: {
     callback: {
-      type: "function"
+      type: Function
     },
     music: {
       type: Object,
@@ -403,7 +403,12 @@ const VueAPlayer = {
   },
   methods: {
     // Float mode
-
+    toggleList() {
+      // this.showList = !this.showList;
+      this.$store.dispatch("playMusic", {
+        mask: !this.$store.state.playPrama.mask
+      });
+    },
     onDragBegin() {
       this.floatOriginX = this.floatOffsetLeft;
       this.floatOriginY = this.floatOffsetTop;

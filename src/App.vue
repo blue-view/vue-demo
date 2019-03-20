@@ -13,7 +13,7 @@
         :callback="callback"
       />
     </div>
-    <div class="mask" v-show="this.$store.state.playPrama.mask" :style="{'height':maskStyle+'px'}"></div>
+    <div @click="hideMask" class="mask" v-show="playPrama.mask" :style="{'height':maskStyle+'px'}"></div>
   </div>
 </template>
  
@@ -25,15 +25,40 @@ import Vue from "vue";
 import Aplayer from "./aplayer/vue-aplayer";
 import { mapState } from "vuex";
 import axios from "axios";
+import { constants } from "fs";
 
 Vue.use(Aplayer);
 
 export default {
   name: "app",
   data() {
-    return {
-      callback: function(obj, context) {
-        var that = this;
+    return {};
+  },
+  components: {
+    MHead,
+    MContent,
+    Aplayer
+  },
+  computed: {
+    playPrama() {
+      return this.$store.state.playPrama;
+    },
+    maskStyle() {
+      return window.innerHeight + document.documentElement.scrollTop;
+    }
+    // mapState({
+    //     playPrama: state => state.playPrama
+    //   })
+  },
+  mounted: function() {},
+  methods: {
+    hideMask() {
+      this.$store.dispatch("playMusic", { mask: false });
+      // this.$refs.aplayer.$children[1].$listeners["togglelist"]();
+    },
+    callback: function(obj, context) {
+      var that = this;
+      this.$nextTick(function() {
         var baseUrl = this.$apiUrl.BaseUrl;
         var songMp3Url = baseUrl + this.$apiUrl.SongMp3Url + obj.id;
         var songLyric = baseUrl + this.$apiUrl.SongLyric + obj.id;
@@ -52,40 +77,8 @@ export default {
             context.thenPlay();
           })
         );
-      }
-    };
-  },
-  components: {
-    MHead,
-    MContent,
-    Aplayer
-  },
-  watch: {
-    playPrama: {
-      deep: true
-      // handler: function(newVal, oldVal) {
-      //   this.$nextTick(function() {
-      //     if (newVal.flag) {
-      //       var aplayer = this.$refs.aplayer;
-      //       aplayer.$el.style.margin = 0;
-      //     }
-      //   });
-      // }
+      });
     }
-  },
-  computed: {
-    playPrama() {
-      return this.$store.state.playPrama;
-    },
-    maskStyle() {
-      return window.innerHeight + document.documentElement.scrollTop;
-    }
-    // mapState({
-    //     playPrama: state => state.playPrama
-    //   })
-  },
-  mounted: function() {
-
   }
 };
 </script>
@@ -117,11 +110,10 @@ export default {
 .mask {
   position: absolute;
   width: 100%;
-  // height:100%;
   background: #000;
   opacity: 0.5;
-  left:0;
-  top:0;
-  z-index:80;
+  left: 0;
+  top: 0;
+  z-index: 80;
 }
 </style>

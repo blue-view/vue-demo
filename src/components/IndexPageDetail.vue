@@ -19,11 +19,11 @@
         </span>
       </span>
     </div>
-    <ul class="indexPage-detail-item">
-      <li v-for="(item,index) in PlayListDetail.tracks" :key="index">
+    <ul class="indexPage-detail-item" :style="ulHeight">
+      <li v-for="(item,index) in PlayListDetail.tracks" :key="index" @click="showPlay(item)">
         <span class="indexPage-detail-item-content">
-          <span class="indexPage-detail-item-content-name">{{item.name}}</span>
-          <span class="indexPage-detail-item-content-arName">{{item.arName}}</span>
+          <span class="indexPage-detail-item-content-name">{{item.title}}</span>
+          <span class="indexPage-detail-item-content-arName">{{item.artist}}</span>
         </span>
         <span class="indexPage-detail-item-content-playicon iconfont">&#xe6bf;</span>
       </li>
@@ -31,12 +31,23 @@
   </div>
 </template>
 <script>
+import axios from "axios";
 export default {
   name: "billboard",
   data() {
     return {
-      PlayListDetail: {}
+      PlayListDetail: {
+        tracks: []
+      }
     };
+  },
+  computed: {
+    ulHeight() {
+      return {
+        height: `${(this.PlayListDetail["tracks"].length * 55) / 32}rem`,
+        marginBottom: `${130 / 32}rem`
+      };
+    }
   },
   watch: {
     $route(to, from) {
@@ -46,6 +57,28 @@ export default {
     }
   },
   methods: {
+    showPlay(item) {
+      var that = this;
+      var playPrama = {};
+      var baseUrl = this.$apiUrl.BaseUrl;
+      var songMp3Url = baseUrl + that.$apiUrl.SongMp3Url + item.id;
+      var songLyric = baseUrl + that.$apiUrl.SongLyric + item.id;
+      var currentSong = that.PlayListDetail["tracks"].filter(function(song) {
+        return item.id == song.id;
+      });
+      playPrama["mask"] = true;
+      playPrama["music"] = currentSong[0];
+      playPrama["flag"] = true;
+      playPrama["list"] = that.PlayListDetail["tracks"];
+      axios.all([that.$getHttp(songMp3Url), that.$getHttp(songLyric)]).then(
+        axios.spread(function(songMp3Url, songLyric) {
+          playPrama["music"]["src"] = songMp3Url.data.data[0].url;
+          playPrama["music"]["lrc"] =
+            songLyric.data.lrc && songLyric.data.lrc.lyric;
+          that.$store.dispatch("playMusic", playPrama);
+        })
+      );
+    },
     getInfo() {
       var that = this;
       let baseUrl = this.$apiUrl.BaseUrl;
@@ -64,8 +97,8 @@ export default {
             var obj = itemObj.tracks[t];
             temArr.push({
               id: obj.id,
-              name: obj.name,
-              arName: obj.ar[0].name
+              title: obj.name,
+              artist: obj.ar[0].name
             });
           }
           temObj["tracks"] = temArr;

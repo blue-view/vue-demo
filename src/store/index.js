@@ -14,7 +14,8 @@ export default new Vuex.Store({
                 author:''
             },
             list:[],
-            mask:false
+            mask:false,
+            flag:false
         }
     },
     getters: {},

@@ -48,7 +48,7 @@
         class="aplayer-icon-menu"
         icon="menu"
         :class="{ 'inactive': !$parent.showList }"
-        @click.native="$emit('togglelist')"
+        @click.native="togglelist"
       />
     </div>
   </div>
@@ -78,6 +78,9 @@ export default {
     }
   },
   methods: {
+    togglelist() {
+      this.$emit("togglelist");
+    },
     onClick() {
       this.$emit("toggleplay");
     },

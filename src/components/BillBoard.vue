@@ -12,15 +12,15 @@
         </div>
       </span>
     </div>
-    <ul class="bill-board-item">
-      <li v-for="(item,index) in TopList.tracks" :key="index">
+    <ul class="bill-board-item" :style="ulHeight">
+      <li v-for="(item,index) in TopList.tracks" :key="item.id" @click="showPlay(item)">
         <span
           class="bill-board-item-number"
           :class="{'bill-board-item-number1':index<3?true:false}"
         >{{(index+1)<10?'0'+(index+1):(index+1)}}</span>
         <span class="bill-board-item-content">
-          <span class="bill-board-item-content-name">{{item.name}}</span>
-          <span class="bill-board-item-content-arName">{{item.arName}}</span>
+          <span class="bill-board-item-content-name">{{item.title}}</span>
+          <span class="bill-board-item-content-arName">{{item.artist}}</span>
         </span>
         <span class="bill-board-item-content-playicon iconfont">&#xe6bf;</span>
       </li>
@@ -29,12 +29,23 @@
 </template>
 <script>
 import { formatTimeToStr } from "../common/js/date.js";
-// console.log(formatTimeToStr);
+import axios from "axios";
+
 export default {
   name: "billboard",
+  computed: {
+    ulHeight() {
+      return {
+        height: `${(this.TopList["tracks"].length * 55) / 32}rem`,
+        marginBottom: `${130 / 32}rem`
+      };
+    }
+  },
   data() {
     return {
-      TopList: {}
+      TopList: {
+        tracks: []
+      }
     };
   },
   filters: {
@@ -55,6 +66,28 @@ export default {
     }
   },
   methods: {
+    showPlay(item) {
+      var that = this;
+      var playPrama = {};
+      var baseUrl = this.$apiUrl.BaseUrl;
+      var songMp3Url = baseUrl + that.$apiUrl.SongMp3Url + item.id;
+      var songLyric = baseUrl + that.$apiUrl.SongLyric + item.id;
+      var currentSong = that.TopList["tracks"].filter(function(song) {
+        return item.id == song.id;
+      });
+      playPrama["mask"] = true;
+      playPrama["music"] = currentSong[0];
+      playPrama["flag"] = true;
+      playPrama["list"] = that.TopList["tracks"];
+      axios.all([that.$getHttp(songMp3Url), that.$getHttp(songLyric)]).then(
+        axios.spread(function(songMp3Url, songLyric) {
+          playPrama["music"]["src"] = songMp3Url.data.data[0].url;
+          playPrama["music"]["lrc"] =
+            songLyric.data.lrc && songLyric.data.lrc.lyric;
+          that.$store.dispatch("playMusic", playPrama);
+        })
+      );
+    },
     getInfo() {
       var that = this;
       let baseUrl = this.$apiUrl.BaseUrl;
@@ -72,8 +105,8 @@ export default {
             var obj = itemObj.tracks[t];
             temArr.push({
               id: obj.id,
-              name: obj.name,
-              arName: obj.ar[0].name
+              title: obj.name,
+              artist: obj.ar[0].name
             });
           }
           temObj["tracks"] = temArr;
@@ -121,7 +154,7 @@ export default {
   height: px2em(100);
 }
 .bill-board-info {
-     margin-left: px2em(15);
+  margin-left: px2em(15);
   display: flex;
   justify-content: center;
   align-items: center;

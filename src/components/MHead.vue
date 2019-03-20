@@ -2,19 +2,18 @@
   <div class="mhead">
     <div class="m-top"></div>
     <ul>
-      <li
-        v-for="(link,index) in links"
-        :key="index"
-        @click="changeNav(index)"      
-      >
-        <router-link :to="{name:link.name,path:link.path}"   :class="{'activeCls':currentIndex==index?true:false}">{{link.text}}</router-link>
+      <li v-for="(link,index) in links" :key="index" @click="changeNav(index)">
+        <router-link
+          :to="{name:link.name,path:link.path}"
+          :class="{'activeCls':currentIndex==index?true:false}"
+        >{{link.text}}</router-link>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import {Cookies} from '@/common/js/cookies'
+import { Cookies } from "@/common/js/cookies";
 // Cookies.set("key",1);
 // console.log(Cookies.get("key"));
 let links = [
@@ -23,12 +22,11 @@ let links = [
     path: "/",
     text: "推荐"
   },
-   {
+  {
     name: "songList",
     path: "/songList",
     text: "排行榜"
-  }
- ,
+  },
   {
     name: "search",
     path: "/search",
@@ -40,13 +38,15 @@ export default {
   data() {
     return {
       links: links,
-      currentIndex: Cookies.get("nav")?Cookies.get("nav"):0
+      currentIndex: Cookies.get("nav") ? Cookies.get("nav") : 0
     };
   },
   methods: {
     changeNav: function(index) {
       this.currentIndex = index;
-      Cookies.set("nav",index);
+      Cookies.set("nav", index);
+      // this.$store.state.playPrama.flag
+      this.$store.dispatch("playMusic", { flag: false });
     }
   }
 };
@@ -66,7 +66,7 @@ export default {
   position: fixed;
   z-index: 3;
   height: px2em(80);
-  background-color:#fff;
+  background-color: #fff;
 }
 .mhead ul {
   width: 100%;
