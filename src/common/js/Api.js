@@ -65,7 +65,9 @@ export function postHttp(url, data = {}) {
 }
 export function ApiUrl() {
   return {
-    BaseUrl: "http://192.168.191.1:3000/",
+    // BaseUrl: "http://192.168.191.1:3000/",
+    BaseUrl: "http://148.70.80.111:3000/",
+    
     Banner: 'banner',
     Personalized: 'personalized',
     Album: 'top/album?offset=0&limit=8',
